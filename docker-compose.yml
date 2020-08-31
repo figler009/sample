@@ -1,0 +1,61 @@
+version: '3'
+services: 
+    db:
+        container_name: my-mysql
+        image: mysql:5.7
+        command: --default-authentication-plugin=mysql_native_password
+        volumes: 
+            - mysql-vol:/var/lib/mysql
+        environment: 
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_DATABASE: powdevs
+            MYSQL_USER: pow-admin
+            MYSQL_PASSWORD: 123456
+        ports:
+            - "3307:3306"
+        networks: 
+            - my-net
+        restart: always
+
+    backend:
+        container_name: backend
+        image: web-backend
+        depends_on: 
+            - db
+        build:
+            context: .
+            dockerfile: Dockerfile-python-flask
+        volumes: 
+            - flask-vol:/app
+        ports:
+            - "5000:5000"
+        networks: 
+            - my-net 
+        restart: always
+
+    frontend:
+        container_name: frontend
+        image: app-react
+        depends_on:
+            - backend
+        build:
+            context: .
+            dockerfile: Dockerfile-nodejs-react
+        volumes: 
+            - react-vol:/app
+        ports:
+            - '3000:3000'
+        networks: 
+            - my-net
+        
+networks: 
+    my-net:
+volumes: 
+    mysql-vol:
+    flask-vol:
+    react-vol:
+    react-components:
+    
+
+        
+
